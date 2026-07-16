@@ -6,11 +6,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role { ADMIN OPERATIONS_MANAGER SUPPORT_AGENT WAREHOUSE_MANAGER }
-enum OrderStatus { PROCESSING PACKED SHIPPED DELIVERED FAILED CANCELLED }
-enum PaymentStatus { PAID PENDING FAILED REFUNDED }
-enum AlertSeverity { INFO WARNING CRITICAL RESOLVED }
-enum RefundStatus { PENDING APPROVED PROCESSING COMPLETED FAILED }
+enum Role {
+  ADMIN
+  OPERATIONS_MANAGER
+  SUPPORT_AGENT
+  WAREHOUSE_MANAGER
+}
+enum OrderStatus {
+  PROCESSING
+  PACKED
+  SHIPPED
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+enum PaymentStatus {
+  PAID
+  PENDING
+  FAILED
+  REFUNDED
+}
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+  RESOLVED
+}
+enum RefundStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
 
 model User {
   id           String   @id @default(cuid())
