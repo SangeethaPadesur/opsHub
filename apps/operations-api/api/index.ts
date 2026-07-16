@@ -1,6 +1,6 @@
 import { buildApp } from "../src/app.js";
 
-let app: any;
+let app: any = null;
 
 async function getApp() {
   if (!app) {

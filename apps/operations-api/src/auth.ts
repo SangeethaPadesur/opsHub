@@ -1,20 +1,25 @@
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "./db.js";
 import { config } from "./config.js";
+import type { JWTPayload } from "./types.js";
 
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
 export async function authenticate(request: FastifyRequest, reply: FastifyReply) {
-  try { await request.jwtVerify(); }
-  catch { return reply.code(401).send({ error: "UNAUTHORIZED", message: "Valid access token required" }); }
+  try { 
+    await request.jwtVerify();
+  } catch { 
+    return reply.code(401).send({ error: "UNAUTHORIZED", message: "Valid access token required" }); 
+  }
 }
 
 export function allowRoles(...roles: string[]) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     await authenticate(request, reply);
     if (reply.sent) return;
-    if (!roles.includes(request.user.role)) {
+    const user = request.user as JWTPayload;
+    if (!roles.includes(user.role)) {
       return reply.code(403).send({ error: "FORBIDDEN", message: "Insufficient permission" });
     }
   };

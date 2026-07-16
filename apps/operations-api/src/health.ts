@@ -5,8 +5,7 @@ export async function healthRoutes(app: FastifyInstance) {
   app.get("/health", async () => ({
     status: "ok",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || "development"
+    env: process.env.NODE_ENV || "development"
   }));
 
   app.get("/health/ready", async () => {
@@ -33,7 +32,6 @@ export async function healthRoutes(app: FastifyInstance) {
 
   app.get("/health/live", async () => ({
     status: "alive",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    timestamp: new Date().toISOString()
   }));
 }

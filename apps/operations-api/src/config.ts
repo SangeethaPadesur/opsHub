@@ -14,6 +14,24 @@ const envSchema = z.object({
   LIVE_EVENT_INTERVAL_MS: z.string().transform(Number).default("5000")
 });
 
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV?: string;
+      PORT?: string;
+      HOST?: string;
+      DATABASE_URL?: string;
+      JWT_ACCESS_SECRET?: string;
+      JWT_REFRESH_SECRET?: string;
+      ACCESS_TOKEN_TTL?: string;
+      REFRESH_TOKEN_TTL_DAYS?: string;
+      CORS_ORIGIN?: string;
+      COOKIE_SECURE?: string;
+      LIVE_EVENT_INTERVAL_MS?: string;
+    }
+  }
+}
+
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
