@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { ADMIN OPERATIONS_MANAGER SUPPORT_AGENT WAREHOUSE_MANAGER }
+enum OrderStatus { PROCESSING PACKED SHIPPED DELIVERED FAILED CANCELLED }
+enum PaymentStatus { PAID PENDING FAILED REFUNDED }
+enum AlertSeverity { INFO WARNING CRITICAL RESOLVED }
+enum RefundStatus { PENDING APPROVED PROCESSING COMPLETED FAILED }
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+  refreshTokens RefreshToken[]
+  refunds      Refund[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id            String        @id
+  customerName  String
+  customerEmail String
+  amount        Int
+  status        OrderStatus
+  paymentStatus PaymentStatus
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  items         OrderItem[]
+  refunds       Refund[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  name      String
+  sku       String
+  price     Int
+  quantity  Int
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Warehouse {
+  id        String      @id
+  name      String
+  city      String
+  inventory Inventory[]
+}
+
+model Product {
+  id        String      @id
+  name      String
+  sku       String      @unique
+  category  String
+  price     Int
+  inventory Inventory[]
+}
+
+model Inventory {
+  id          String    @id @default(cuid())
+  quantity    Int
+  productId   String
+  warehouseId String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  @@unique([productId, warehouseId])
+}
+
+model Alert {
+  id        String        @id @default(cuid())
+  title     String
+  message   String
+  severity  AlertSeverity
+  createdAt DateTime      @default(now())
+}
+
+model Refund {
+  id        String       @id @default(cuid())
+  orderId   String
+  userId    String
+  amount    Int
+  reason    String
+  status    RefundStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  order     Order        @relation(fields: [orderId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
+}
+
+model FeatureFlag {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  description String?
+  enabled     Boolean @default(false)
+}
